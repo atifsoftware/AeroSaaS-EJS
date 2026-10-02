@@ -1,0 +1,26 @@
+{
+  "name": "aerosaas-ejs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch server.ts",
+    "build:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --minify",
+    "watch:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --watch",
+    "seed": "tsx database/seeders/run.ts",
+    "start": "node --import tsx server.ts"
+  },
+  "dependencies": {
+    "aerojs": "file:../AeroJS",
+    "ejs": "^3.1.10"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/node": "^22.10.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — AeroSaaS (EJS)</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/app.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#0B0F17] text-gray-100 antialiased selection:bg-indigo-500 selection:text-white min-h-screen">
+  <div class="min-h-screen bg-[#0B0F17] flex items-center justify-center p-4 relative overflow-hidden">
+    <div class="ambient-glow -top-32 left-1/4 w-96 h-96 bg-indigo-600 rounded-full"></div>
+    <div class="ambient-glow -bottom-32 right-1/4 w-96 h-96 bg-emerald-600 rounded-full"></div>
+
+    <div class="w-full max-w-md relative z-10">
+      <div class="text-center mb-8">
+        <div class="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 items-center justify-center shadow-glow-primary mb-4">
+          <i data-lucide="sparkles" class="w-7 h-7 text-white"></i>
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">
+          AeroSaaS Platform
+        </h1>
+        <p class="mt-2 text-sm text-gray-400">
+          Server-Rendered with <strong class="text-indigo-400">EJS</strong> on AeroJS Core
+        </p>
+      </div>
+
+      <div class="glass-panel p-8 rounded-2xl border border-white/10 shadow-2xl">
+        <!-- Quick Demo Credentials Banner -->
+        <div class="mb-6 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-between">
+          <div class="text-xs">
+            <span class="text-gray-400">Demo: </span>
+            <span class="text-indigo-300 font-mono font-medium">alex@aerosaas.dev</span>
+          </div>
+          <button
+            type="button"
+            onclick="fillDemo()"
+            class="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 bg-indigo-500/20 px-2.5 py-1 rounded-md transition-colors"
+          >
+            Auto-Fill
+          </button>
+        </div>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="mb-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+            <%= error %>
+          </div>
+        <% } %>
+
+        <% if (typeof message !== 'undefined' && message) { %>
+          <div class="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+            <%= message %>
+          </div>
+        <% } %>
+
+        <form action="/login" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-300 mb-1.5">
+              Work Email
+            </label>
+            <div class="relative">
+              <i data-lucide="mail" class="w-4 h-4 text-gray-500 absolute left-3 top-3"></i>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="alex@aerosaas.dev"
+                class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-medium text-gray-300">
+                Password
+              </label>
+            </div>
+            <div class="relative">
+              <i data-lucide="lock" class="w-4 h-4 text-gray-500 absolute left-3 top-3"></i>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="••••••••"
+                class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full mt-2 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm shadow-glow-primary transition-all flex items-center justify-center space-x-2"
+          >
+            <span>Sign In with EJS</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <div class="mt-6 pt-6 border-t border-white/5 text-center text-xs text-gray-400">
+          Don't have an account?
+          <a href="/register" class="ml-1 text-indigo-400 font-semibold hover:underline">
+            Create Workspace
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (window.lucide) lucide.createIcons();
+
+    function fillDemo() {
+      document.getElementById('email').value = 'alex@aerosaas.dev';
+      document.getElementById('password').value = 'secret123';
+    }
+  </script>
+</body>
+</html>

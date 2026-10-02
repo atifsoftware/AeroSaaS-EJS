@@ -1,0 +1,225 @@
+<%- include('../layouts/header') %>
+
+<div class="h-full flex flex-col space-y-6">
+  <!-- Project Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center space-x-3">
+      <div
+        class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md"
+        style="background-color: <%= project.color %>"
+      >
+        <i data-lucide="folder-kanban" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center space-x-2">
+          <span><%= project.name %></span>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            Sprint Board (EJS)
+          </span>
+        </h1>
+        <p class="text-xs text-gray-400 mt-0.5"><%= project.description || '' %></p>
+      </div>
+    </div>
+
+    <button
+      onclick="openTaskModal('todo')"
+      class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold shadow-glow-primary transition-all flex items-center space-x-2 self-start sm:self-auto"
+    >
+      <i data-lucide="plus" class="w-4 h-4"></i>
+      <span>Add Task</span>
+    </button>
+  </div>
+
+  <!-- 5-Column Kanban Board -->
+  <div class="flex-1 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto pb-4">
+    <% const COLUMNS = [
+      { key: 'backlog', title: 'Backlog', color: 'text-gray-400' },
+      { key: 'todo', title: 'To Do', color: 'text-sky-400' },
+      { key: 'in_progress', title: 'In Progress', color: 'text-amber-400' },
+      { key: 'in_review', title: 'In Review', color: 'text-purple-400' },
+      { key: 'done', title: 'Done', color: 'text-emerald-400' },
+    ]; %>
+
+    <% COLUMNS.forEach(function(col, colIdx) { 
+      const columnTasks = tasks.filter(t => t.status === col.key);
+    %>
+      <div class="glass-panel p-3.5 rounded-2xl flex flex-col h-full min-h-[500px]">
+        <div class="flex items-center justify-between pb-3 border-b border-white/5 mb-3">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold uppercase tracking-wider <%= col.color %>"><%= col.title %></span>
+            <span class="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-white/5 text-gray-400">
+              <%= columnTasks.length %>
+            </span>
+          </div>
+          <button onclick="openTaskModal('<%= col.key %>')" class="p-1 rounded-md text-gray-500 hover:text-white hover:bg-white/5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <div class="flex-1 space-y-3 overflow-y-auto pr-1">
+          <% columnTasks.forEach(function(t) { %>
+            <div class="glass-card p-3.5 rounded-xl border border-white/5 hover:border-indigo-500/30 transition-all group relative">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <span class="text-xs font-semibold text-white leading-snug <%= t.status === 'done' ? 'line-through text-gray-400' : '' %>">
+                  <%= t.title %>
+                </span>
+                <button onclick="deleteTask(<%= t.id %>)" class="text-gray-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity p-0.5">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <% if (t.description) { %>
+                <p class="text-[11px] text-gray-400 line-clamp-2 mb-3"><%= t.description %></p>
+              <% } %>
+
+              <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                <span class="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded bg-white/5 text-gray-300">
+                  <%= t.priority %>
+                </span>
+
+                <div class="flex items-center space-x-1">
+                  <% if (colIdx > 0) { %>
+                    <button onclick="moveTask(<%= t.id %>, '<%= COLUMNS[colIdx - 1].key %>')" class="p-1 rounded hover:bg-white/10 text-gray-400 hover:text-white" title="Move Left">
+                      <i data-lucide="chevron-left" class="w-3 h-3"></i>
+                    </button>
+                  <% } %>
+                  <% if (colIdx < COLUMNS.length - 1) { %>
+                    <button onclick="moveTask(<%= t.id %>, '<%= COLUMNS[colIdx + 1].key %>')" class="p-1 rounded hover:bg-white/10 text-gray-400 hover:text-white" title="Move Right">
+                      <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                    </button>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+
+  <!-- Create Task Modal -->
+  <div id="taskModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-md p-6 rounded-2xl border border-white/10 shadow-2xl relative">
+      <button onclick="closeTaskModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <h2 class="text-lg font-bold text-white mb-1">Add Sprint Task</h2>
+      <p class="text-xs text-gray-400 mb-5">
+        Add an actionable item to <%= project.name %>.
+      </p>
+
+      <form action="/tasks" method="POST" class="space-y-4">
+        <input type="hidden" name="project_id" value="<%= project.id %>" />
+        
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Task Title</label>
+          <input
+            type="text"
+            name="title"
+            required
+            placeholder="e.g. Implement EJS View Engine"
+            class="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Description</label>
+          <textarea
+            name="description"
+            rows="3"
+            placeholder="Requirements, acceptance criteria, or links..."
+            class="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 resize-none"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-300 mb-1">Status</label>
+            <select
+              id="taskStatusSelect"
+              name="status"
+              class="w-full px-3 py-2.5 rounded-xl bg-gray-900 border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
+            >
+              <option value="backlog">Backlog</option>
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="in_review">In Review</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-300 mb-1">Priority</label>
+            <select
+              name="priority"
+              class="w-full px-3 py-2.5 rounded-xl bg-gray-900 border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
+            >
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Assignee</label>
+          <select
+            name="assignee_id"
+            class="w-full px-3 py-2.5 rounded-xl bg-gray-900 border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
+          >
+            <option value="">Unassigned</option>
+            <% teamMembers.forEach(function(m) { %>
+              <option value="<%= m.user_id %>"><%= m.name %> (<%= m.email %>)</option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="pt-2 flex justify-end space-x-3">
+          <button
+            type="button"
+            onclick="closeTaskModal()"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-400 hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-glow-primary transition-all"
+          >
+            Create Task
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openTaskModal(status) {
+    document.getElementById('taskStatusSelect').value = status;
+    document.getElementById('taskModal').classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  }
+  function closeTaskModal() {
+    document.getElementById('taskModal').classList.add('hidden');
+  }
+
+  async function moveTask(taskId, newStatus) {
+    await fetch('/tasks/' + taskId + '/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    window.location.reload();
+  }
+
+  async function deleteTask(taskId) {
+    if (!confirm('Are you sure you want to delete this task?')) return;
+    await fetch('/tasks/' + taskId, { method: 'DELETE' });
+    window.location.reload();
+  }
+</script>
+
+<%- include('../layouts/footer') %>
